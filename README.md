@@ -4,4 +4,4 @@ First of all need to install run React Native related to the environment. Please
 git clone https://github.com/Willwpl/ReactNativeLockApp.git
 cd "Your Folder Name" && npm install
 react-native link
-react-native run-ios
+react-native run-android || react-native run-ios
