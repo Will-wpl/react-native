@@ -19,6 +19,7 @@ import data from '../server/data'
 import My from './My'
 import Setting from './Setting'
 import LbsModal from '../component/LbsModal'
+import HttpUtil from '../server/server'
 const isIOS = Platform.OS == "ios"
 const { width, height } = Dimensions.get('window')
 const headH = px2dp(isIOS?70:50)
@@ -60,6 +61,11 @@ export default class HomePage extends Component {
           tabShow:true
       });
     },0)
+  }
+  getList() {
+    HttpUtil.get('https://facebook.github.io/react-native/movies.json')
+        .then(result => this.setState({text: JSON.stringify(result)}))
+        .catch(error => console.error(error))
   }
   openLbs(){
     this.props.navigator.push({
