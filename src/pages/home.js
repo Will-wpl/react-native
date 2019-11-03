@@ -32,6 +32,7 @@ export default class HomePage extends Component {
     super(props);
     this.state = {
       data: [],
+      loaddata:[],
       loaded: false,
       location: "大连甘井子区",
       scrollY: new Animated.Value(0),
@@ -61,11 +62,13 @@ export default class HomePage extends Component {
           tabShow:true
       });
     },0)
+    this.getList();
   }
   getList() {
-    HttpUtil.get('https://facebook.github.io/react-native/movies.json')
-        .then(result => this.setState({text: JSON.stringify(result)}))
+    HttpUtil.get('/SL_Lock')
+        .then((result) => {this.setState({data:result,isRefreshing: false})})
         .catch(error => console.error(error))
+        //this.forceUpdate();
   }
   openLbs(){
     this.props.navigator.push({
@@ -150,22 +153,22 @@ export default class HomePage extends Component {
   }
 
   _renderList(){
-    if(this.state.tabShow){
-      return (
-        <View style={{flex: 1, backgroundColor: "#f3f3f3"}}>
-          <ScrollableTabView 
-          style={styles.tabViewStyle}
-          initialPage={0}
-          tabBarActiveTextColor='#0398ff'
-          tabBarInactiveTextColor='#333'
-          tabBarUnderlineStyle={styles.tabBarUnderline}
-          renderTabBar={() => <DefaultTabBar />}>
-            <ShowList tabLabel="工作中" data={data.lock}/>
-            <ShowList tabLabel="已开锁" data={data.unlock}/>
-          </ScrollableTabView>
-        </View>
-      )
-    }
+      if(this.state.tabShow){
+        return (
+          <View style={{flex: 1, backgroundColor: "#f3f3f3"}}>
+            <ScrollableTabView 
+            style={styles.tabViewStyle}
+            initialPage={0}
+            tabBarActiveTextColor='#0398ff'
+            tabBarInactiveTextColor='#333'
+            tabBarUnderlineStyle={styles.tabBarUnderline}
+            renderTabBar={() => <DefaultTabBar />}>
+              <ShowList tabLabel="工作中" data={this.state.data}/>
+              {/* <ShowList tabLabel="已开锁" data={data.unlock}/> */}
+            </ScrollableTabView>
+          </View>
+        )
+      }
   }
   showModal(type){
     this.setState({modalVisible: true,modalType:type})
@@ -196,7 +199,10 @@ export default class HomePage extends Component {
             {this._renderTypes()}
           </View>
           <View style={{backgroundColor: "#fff"}}>
-            {this._renderList()}
+            {
+              this.state.data.length>0?
+              this._renderList():this.renderLoadingView()
+              }
           </View>
           {/* <FlatList
             data={this.state.data}
@@ -214,10 +220,12 @@ export default class HomePage extends Component {
           </View>
         <LbsModal
           modalVisible={this.state.modalVisible}
+          data={this.state.data}
           type={this.state.modalType}
           location={this.state.location}
           setLocation={this.changeLocation.bind(this)}
           closeModal={(()=>this.setState({modalVisible: false})).bind(this)}
+          onRefresh={this._onRefresh.bind(this)}
         />
       </View>
     );
@@ -226,32 +234,17 @@ export default class HomePage extends Component {
   renderLoadingView() {
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <Text>加载中...</Text>
       </View>
     );
   }
   _onRefresh(){
-    this.setState({isRefreshing: true});
-    setTimeout(() => {
-      this.setState({isRefreshing: false});
-    }, 2000)
+    this.setState({isRefreshing: true,data:[]});
+    this.getList();
+    // setTimeout(() => {
+    //   this.setState({isRefreshing: false});
+    // }, 2000)
   }
-  // renderMovie({ item }) {
-  //   // { item }是一种“解构”写法，请阅读ES2015语法的相关文档
-  //   // item也是FlatList中固定的参数名，请阅读FlatList的相关文档
-  //   return (
-  //     <View style={styles.container}>
-  //       <Image
-  //         source={{ uri: item.posters.thumbnail }}
-  //         style={styles.thumbnail}
-  //       />
-  //       <View style={styles.rightContainer}>
-  //         <Text style={styles.title}>{item.title}</Text>
-  //         <Text style={styles.year}>{item.year}</Text>
-  //       </View>
-  //     </View>
-  //   );
-  // }
 }
 
 var styles = StyleSheet.create({

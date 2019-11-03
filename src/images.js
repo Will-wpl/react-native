@@ -6,8 +6,12 @@ export default {
   zm: require('./images/sfz1.png'),
   bm: require('./images/sfz2.png'),
   rlsb: require('./images/rlsb.png'),
-  lock: require('./images/lock.png'),
-  unlock: require('./images/unlock.png'),
+  LOCK: require('./images/lock.png'),
+  UNLOCK: require('./images/unlock.png'),
+  nodata: require('./images/nodata.png'),
   scanline:require('./images/scan_line.png'),
-  map:require('./images/map.png')
+  map:require('./images/map.png'),
+  error:require('./images/error_icon.png'),
+  yes:require('./images/yes_icon.png'),
+  loading:require('./images/loading.gif'),
 }

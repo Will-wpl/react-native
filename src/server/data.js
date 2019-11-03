@@ -1,4 +1,5 @@
 let d = {
+  allUrl:"http://61.174.28.14:28081",
   lock: [
     {
       title: "锁1",

@@ -6,6 +6,7 @@ import { Image, FlatList, StyleSheet, Text, Dimensions,View,TouchableOpacity,Scr
 import NavBar from '../component/NavBar'
 import BarcodeShow from './barCode'
 import LocalImg from '../images'
+import CodeResultPage from './codeResult'
 const { width, height } = Dimensions.get('window')
 export default class KeyPage extends Component {
   constructor(props) {
@@ -30,26 +31,40 @@ export default class KeyPage extends Component {
         }
     });
   }
+  goCodeResult(){
+    this.props.navigator.push({
+      component: CodeResultPage,
+        args: {
+          LockCode:"6921630000045"
+        }
+    });
+  }
   render() {
     return (
-      <View style={{ flex: 1, backgroundColor: "#f3f3f3" }}>
+      <View style={{ flex: 1, backgroundColor: "#77b3d5" }}>
         <NavBar
           title="钥匙"
         />
         <ScrollView>
           <Text style={styles.title}>{"请选择扫码方式"}</Text>
-          <TouchableOpacity onPress={this.goCamera.bind(this,"lock")}>
+          {/* <TouchableOpacity onPress={this.goCamera.bind(this,"lock")}>
             <View style={{ flex: 1, padding: 15,height:280,alignItems: "center", backgroundColor: "#e84c3d", overflow: "hidden",justifyContent: "center" }}>
               <Image source={LocalImg.lock} style={styles.imgStyle} />
               <Text style={styles.text}>关锁</Text>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity onPress={this.goCamera.bind(this,"unlock")}>
-          <View style={{ flex: 1, padding: 15,height:280,alignItems: "center", backgroundColor: "#77b3d5", overflow: "hidden",justifyContent: "center" }}>
-            <Image source={LocalImg.unlock} style={styles.imgStyle} />
-            <Text style={styles.text}>解锁</Text>
-          </View>
-        </TouchableOpacity>
+            <View style={{ flex: 1, padding: 15,height:280,alignItems: "center", backgroundColor: "#77b3d5", overflow: "hidden",justifyContent: "center" }}>
+              <Image source={LocalImg.UNLOCK} style={styles.imgStyle} />
+              <Text style={styles.text}>解锁</Text>
+            </View>
+          </TouchableOpacity>
+          {/* <TouchableOpacity onPress={this.goCodeResult.bind(this)}>
+            <View style={{ flex: 1, padding: 15,height:280,alignItems: "center", backgroundColor: "#77b3d5", overflow: "hidden",justifyContent: "center" }}>
+              <Image source={LocalImg.unlock} style={styles.imgStyle} />
+              <Text style={styles.text}>解锁</Text>
+            </View>
+          </TouchableOpacity> */}
         </ScrollView>
       </View>
     );
@@ -63,6 +78,7 @@ var styles = StyleSheet.create({
     paddingTop: 15,
     paddingBottom: 15,
     color: "#666",
+    backgroundColor:"#f3f3f3"
   },
   imgStyle:{
     width: 128,height:128,borderRadius:100, 

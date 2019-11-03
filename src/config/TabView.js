@@ -14,6 +14,7 @@ import HomePage from '../pages/home'
 import KeyPage from '../pages/key'
 import LocationPage from '../pages/location'
 import WarningPage from '../pages/warning'
+import LogPage from '../pages/log'
 export default class TabView extends Component {
   constructor(props){
     super(props)
@@ -23,8 +24,9 @@ export default class TabView extends Component {
     }
     this.tabNames = [
       ["首页", "ios-home", "HomePage", <HomePage {...this.props}/>],
-      ["警告", "ios-alert", "Warning", <WarningPage {...this.props}/>],
+      // ["警告", "ios-alert", "Warning", <WarningPage {...this.props}/>],
       ["钥匙", "ios-key", "Key", <KeyPage {...this.props}/>],
+      ["日志", "ios-paper", "Log", <LogPage {...this.props}/>],
       ["位置", "ios-pin", "Location", <LocationPage {...this.props}/>]
     ]
     TabView.hideTabBar = TabView.hideTabBar.bind(this)

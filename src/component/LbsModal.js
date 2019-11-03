@@ -14,17 +14,23 @@ import {
 } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import TabNavigator from 'react-native-tab-navigator'
+import Toast from 'react-native-root-toast';
 import px2dp from '../util'
 import NavBar from '../component/NavBar'
 import Button from '../component/Button'
+import ConfirmDialog from '../component/confirm'
 let {width, height} = Dimensions.get('window')
 const isAndroid = Platform.OS == "android"
-
+import HttpUtil from '../server/server'
 export default class LbsModal extends Component {
   constructor(props){
     super(props)
     this.state = {
       loading: false,
+      modalVisibility:false,
+      lockId:'',
+      Lockcode:"",
+      macaddress:"",
       address: [
         {
           name: "锁1",
@@ -91,8 +97,32 @@ export default class LbsModal extends Component {
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
     )*/
   }
-  add(){
-
+  saveLock() {
+    HttpUtil.get(`/SL_Lock/save?lockcode=${this.state.Lockcode}&macaddress=${this.state.macaddress}`)
+        .then((result) => { Toast.show("添加设备成功！");this.closeModal()})
+        .catch(error => console.error(error))
+        //this.forceUpdate();
+  }
+  showConfirm(lockId){
+    this.setState({modalVisibility:true,lockId:lockId});
+  }
+  removeLock() {
+    HttpUtil.get(`/SL_Lock/delete?lockcode=${this.state.lockId}`)
+        .then((result) => {
+          Toast.show("删除设备成功！");
+          this.closeModal();
+          if(this.props.onRefresh){
+            this.props.onRefresh();
+          }
+        })
+        .catch(error => console.error(error))
+        //this.forceUpdate();
+  }
+  getColor(qoe){
+    if(qoe){
+      const color = qoe=="HIGH"?'green':(qoe=="MIDDLE"?'orange':(qoe=="LOW"?'red':'gray'));
+      return color
+    }
   }
   render(){
     return (
@@ -114,7 +144,10 @@ export default class LbsModal extends Component {
           {this.props.type=="add"?<View>
             <Text style={styles.title}>{"添加设备"}</Text>
             <View style={styles.searchView}>
-              <TextInput ref="search" style={styles.textInput} underlineColorAndroid="transparent" placeholder="请输入设备编号" placeholderTextColor="#666"/>
+              <TextInput ref="Lockcode" onChangeText={(Lockcode) => this.setState({Lockcode})} value={this.state.Lockcode} style={styles.textInput} underlineColorAndroid="transparent" placeholder="请输入设备编号" placeholderTextColor="#666"/>
+            </View>
+            <View style={styles.searchView}>
+              <TextInput ref="macaddress" onChangeText={(macaddress) => this.setState({macaddress})} value={this.state.macaddress} style={styles.textInput} underlineColorAndroid="transparent" placeholder="请输入Mac地址格式（00-00-00-00-00）" placeholderTextColor="#666"/>
             </View>
             <Button style={{flex: 1}} onPress={this.closeModal.bind(this)}>
               <View style={{height: px2dp(45),flexDirection:"row", backgroundColor: "#fff", flex: 1, alignItems:"center", justifyContent: "center"}}>
@@ -123,7 +156,7 @@ export default class LbsModal extends Component {
               </View>
             </Button>
             <View style={{height:1,borderColor:"#ddd"}}></View>
-            <Button style={{flex: 1}} onPress={this.add.bind(this)}>
+            <Button style={{flex: 1}} onPress={this.saveLock.bind(this)}>
               <View style={{height: px2dp(45),flexDirection:"row", backgroundColor: "#fff", flex: 1, alignItems:"center", justifyContent: "center"}}>
                 <Icon name="ios-add-circle" size={18} color="#0096ff" />
                 <Text style={{color: "#0096ff", fontSize: px2dp(14), marginLeft: 8}}>{"添加设备"}</Text>
@@ -133,15 +166,16 @@ export default class LbsModal extends Component {
           <View>
           <Text style={styles.title}>{"删除设备"}</Text>
           {
-            this.state.address.map((item, i) => {
+            this.props.data.map((item, i) => {
               return (
-                <Button key={i} onPress={()=>{}}>
+                <Button key={i}>
                   <View style={styles.address1}>
-                    <Text style={{color: "#333", fontSize: px2dp(14)}}>{item.name+" "+item.info}</Text>
+                    <Text style={{color: "#333", fontSize: px2dp(14)}}>机构代号：{item.lockCode}</Text>
                     <View style={styles.ads1List}>
-                      <Text style={[styles.tag, {backgroundColor: item.color || "#0096ff", }]}>{item.tag}</Text>
-                      <Text style={{color: "#bbb", fontSize: px2dp(13)}}>{item.address}</Text>
+                      <Text style={[styles.tag,{color:"#666"}]}>更新时间：{item.updatetime}</Text>
+                      <Text style={[styles.tag, {backgroundColor:this.getColor(item.qoe)}]}>{item.qoe.indexOf("%")>0?"错误数据":item.qoe}</Text>
                     </View>
+                    <Text style={styles.delIcon} onPress={this.showConfirm.bind(this,item.lockCode)}>X</Text>
                   </View>
                 </Button>
               )
@@ -150,6 +184,16 @@ export default class LbsModal extends Component {
           </View>
           }
         </ScrollView>
+        <ConfirmDialog title="删除锁" message={"确认删除吗？"} ref="_customModal" visibility={this.state.modalVisibility}
+                    buttonLeftName="取消" buttonRightName="确认"
+                    onLeftPress={() => {
+                    this.setState({modalVisibility:false})
+                    }}
+                    onRightPress={() => {
+                    this.removeLock();
+                    this.setState({modalVisibility:false});
+                    }}
+                />
       </Modal>
     )
   }
@@ -208,10 +252,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff"
   },
   address1: {
+    position:"relative",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
     paddingHorizontal: 16,
     backgroundColor: "#fff",
     paddingVertical: 12
+  },
+  delIcon:{
+    position:"absolute", width:20,height:20,backgroundColor:"red",
+    color:"#fff",right:10,top:10,borderRadius:100,textAlign:"center"
   }
 })
